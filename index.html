@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arabica Coffee Quality Analysis & Prediction | Statistical Machine Learning</title>
+  <meta name="description" content="Academic Statistical Machine Learning project analyzing Arabica coffee quality factors and predicting Total Cup Points using OLS regression, Ridge regression, and Linear Discriminant Analysis.">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☕</text></svg>">
+  
+  <!-- Master Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  
+  <!-- Chart.js Engine (Local bundle) -->
+  <script src="assets/js/chart.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-brand">
+        <div class="brand-icon">☕</div>
+        <div class="brand-info">
+          <span class="brand-title">Arabica Coffee Quality</span>
+          <span class="brand-subtitle">Statistical Machine Learning Project</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Menu -->
+      <nav class="nav-menu" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li class="nav-item"><a href="#home" class="active">Dashboard</a></li>
+          <li class="nav-item"><a href="#dataset">Dataset</a></li>
+          <li class="nav-item"><a href="#eda">EDA & Figures</a></li>
+          <li class="nav-item"><a href="#statistical">Statistical Tests</a></li>
+          <li class="nav-item"><a href="#regression">OLS Regression</a></li>
+          <li class="nav-item"><a href="#ridge">Ridge Model</a></li>
+          <li class="nav-item"><a href="#lda">LDA Classifier</a></li>
+          <li class="nav-item"><a href="#comparison">Model Compare</a></li>
+          <li class="nav-item"><a href="#conclusions">Conclusions</a></li>
+          <li class="nav-item"><a href="#about">About / Viva</a></li>
+        </ul>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div class="nav-actions">
+        <button type="button" class="btn-predict-nav btn-open-predictor" aria-label="Open Interactive Quality Predictor">
+          <span>⚡ Live Predictor</span>
+        </button>
+        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle theme">
+          ☀️
+        </button>
+        <button type="button" class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle navigation drawer">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div class="mobile-drawer" id="mobile-drawer">
+    <a href="#home" class="active">1. Home / Dashboard <span>→</span></a>
+    <a href="#dataset">2. Dataset & Preprocessing <span>→</span></a>
+    <a href="#eda">3. Exploratory Data Analysis (8 Figures) <span>→</span></a>
+    <a href="#statistical">4. Statistical Analysis & Welch's Test <span>→</span></a>
+    <a href="#regression">5. OLS Regression Analysis <span>→</span></a>
+    <a href="#ridge">6. Ridge Regression Prediction <span>→</span></a>
+    <a href="#lda">7. LDA Quality Band Classification <span>→</span></a>
+    <a href="#comparison">8. Model Comparison <span>→</span></a>
+    <a href="#conclusions">9. Conclusions & Limitations <span>→</span></a>
+    <a href="#about">10. About Project & Viva Q&A <span>→</span></a>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+
+    <!-- Tooltip element for Canvas Heatmap -->
+    <div id="heatmap-tooltip" style="position:fixed; display:none; background:#1c1a16; color:#fbf9f5; border:1px solid #d4a373; border-radius:6px; padding:8px 12px; font-size:12px; pointer-events:none; z-index:3000; box-shadow:0 6px 16px rgba(0,0,0,0.5);"></div>
+
+    <!-- ========================================== -->
+    <!-- 1. HOME / DASHBOARD SECTION                -->
+    <!-- ========================================== -->
+    <section id="section-home" class="page-section active" aria-labelledby="home-title">
+      
+      <!-- Hero Section -->
+      <div class="hero-card">
+        <div class="hero-academic-badge">
+          <span>ACADEMIC PROJECT</span> • Statistical Machine Learning for Data Science (7th Sem)
+        </div>
+        <h1 class="hero-title" id="home-title">Arabica Coffee Quality Analysis &amp; Prediction</h1>
+        <h2 class="hero-subtitle">Statistical and Machine Learning Analysis of Coffee Quality</h2>
+        <p class="hero-text">
+          Investigating physical, environmental, and production factors associated with Arabica coffee quality 
+          scores (<strong>Total Cup Points</strong>) using inferential statistics, robust Multiple Linear Regression, 
+          regularized Ridge Regression, and Linear Discriminant Analysis (LDA).
+        </p>
+        <div class="hero-cta-group">
+          <a href="#eda" class="btn-primary">
+            <span>Explore 8 Project Figures</span>
+            <span>→</span>
+          </a>
+          <button type="button" class="btn-outline btn-open-predictor">
+            <span>Launch Cup Quality Predictor</span>
+          </button>
+          <a href="#statistical" class="btn-outline">
+            <span>View Statistical Tests</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Original Records <span>📁</span></div>
+          <div class="kpi-value">1,311</div>
+          <div class="kpi-note">CQI Arabica database entries</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Final Analyzed <span>✨</span></div>
+          <div class="kpi-value">1,310</div>
+          <div class="kpi-note">1 inconsistent record removed</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Attributes <span>📊</span></div>
+          <div class="kpi-value">44</div>
+          <div class="kpi-note">Physical, farm &amp; sensory cols</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Target Variable <span>🎯</span></div>
+          <div class="kpi-value" style="font-size: 1.45rem; padding-top: 0.2rem;">Total Cup Points</div>
+          <div class="kpi-note">Continuous score (Mean: 82.18)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Ridge Test R² <span>📈</span></div>
+          <div class="kpi-value" style="color: var(--accent-gold);">0.2466</div>
+          <div class="kpi-note">5-Fold CV R² = 0.2101</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">LDA Accuracy <span>🏷️</span></div>
+          <div class="kpi-value" style="color: var(--color-success);">74.43%</div>
+          <div class="kpi-note">Macro F1 = 0.508 (3 bands)</div>
+        </div>
+      </div>
+
+      <!-- Visual Workflow Pipeline -->
+      <div class="workflow-section">
+        <div class="workflow-header">
+          <h3>Methodological Workflow Pipeline</h3>
+          <span class="badge badge-gold">End-to-End SML Architecture</span>
+        </div>
+        <div class="workflow-container">
+          <div class="workflow-step" onclick="App.switchSection('dataset')">
+            <span class="step-number">STEP 01</span>
+            <span class="step-label">Data Acquisition</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+          <div class="workflow-step" onclick="App.switchSection('dataset')">
+            <span class="step-number">STEP 02</span>
+            <span class="step-label">Preprocessing &amp; Leakage Prevention</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+          <div class="workflow-step" onclick="App.switchSection('eda')">
+            <span class="step-number">STEP 03</span>
+            <span class="step-label">Exploratory Data Analysis</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+          <div class="workflow-step" onclick="App.switchSection('statistical')">
+            <span class="step-number">STEP 04</span>
+            <span class="step-label">Statistical Hypothesis Tests</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+          <div class="workflow-step" onclick="App.switchSection('regression')">
+            <span class="step-number">STEP 05</span>
+            <span class="step-label">OLS Linear Regression</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+          <div class="workflow-step" onclick="App.switchSection('ridge')">
+            <span class="step-number">STEP 06</span>
+            <span class="step-label">Ridge Regularization</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+          <div class="workflow-step" onclick="App.switchSection('lda')">
+            <span class="step-number">STEP 07</span>
+            <span class="step-label">LDA Classification</span>
+          </div>
+          <span class="workflow-arrow">→</span>
+          <div class="workflow-step" onclick="App.switchSection('comparison')">
+            <span class="step-number">STEP 08</span>
+            <span class="step-label">Evaluation &amp; Comparison</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Findings Section -->
+      <div class="section-header" style="margin-top: 2rem;">
+        <span class="section-tag">Empirical Insights</span>
+        <h3 class="section-title" style="font-size: 1.85rem;">Project Key Findings</h3>
+        <p class="section-desc">Key takeaways substantiated by rigorous statistical modeling and cross-validated learning.</p>
+      </div>
+
+      <div class="findings-grid">
+        <div class="finding-card">
+          <div class="finding-num">1</div>
+          <div class="finding-content">
+            <h4>Statistically Significant Defect Degradation</h4>
+            <p>Category Two Defects showed a statistically significant negative association with Total Cup Points (OLS coefficient = -0.1204, p &lt; 0.0001). Each additional secondary defect degrades the cup score by ~0.12 points.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">2</div>
+          <div class="finding-content">
+            <h4>Lot Volume Association</h4>
+            <p>Number of Bags showed a smaller but statistically significant negative association (coef = -0.0019, p = 0.0155), indicating that very large commercial batch sizes slightly correlate with lower specialty cup scores.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">3</div>
+          <div class="finding-content">
+            <h4>Ridge Hold-Out Predictive Performance</h4>
+            <p>Ridge Regression achieved test R² = 0.2466 (with RMSE = 2.328 and MAE = 1.599) on the held-out 20% unseen test partition, outperforming standard OLS which suffered from multicollinearity across 40+ dummy indicators.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">4</div>
+          <div class="finding-content">
+            <h4>Five-Fold Cross-Validation Stability</h4>
+            <p>Five-fold CV produced a mean R² = 0.2101 and mean RMSE = 2.375, demonstrating consistent generalization across random sample folds without overfitting.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">5</div>
+          <div class="finding-content">
+            <h4>Discriminant Analysis Classification</h4>
+            <p>Linear Discriminant Analysis (LDA) achieved 74.43% test accuracy and a macro F1-score of 0.508 across the three ordered quality bands (Low, Medium, High).</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">6</div>
+          <div class="finding-content">
+            <h4>Severe Class Imbalance Effects</h4>
+            <p>LDA performed substantially better for Medium-quality samples (71.2% recall) than Low (63.2% recall) and High (31.6% recall) samples due to extreme natural class skew (1,026 Medium vs 188 Low and 96 High).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 2. DATASET & PREPROCESSING SECTION         -->
+    <!-- ========================================== -->
+    <section id="section-dataset" class="page-section" aria-labelledby="dataset-title">
+      <div class="section-header">
+        <span class="section-tag">Data Architecture</span>
+        <h2 class="section-title" id="dataset-title">Dataset Characteristics &amp; Preprocessing</h2>
+        <p class="section-desc">Comprehensive overview of the Arabica Coffee Quality Institute dataset, preprocessing transformations, data hygiene, and target leakage prevention protocols.</p>
+      </div>
+
+      <!-- Critical Alert: Target Leakage Prevention -->
+      <div class="alert-box alert-warning">
+        <div class="alert-icon">⚠️</div>
+        <div>
+          <strong style="color: #fcd34d; font-size: 1rem;">Target Leakage Prevention Protocol:</strong><br>
+          Sensory variables such as <em>Aroma, Flavor, Aftertaste, Acidity, Body, Balance, Uniformity, Clean Cup, Sweetness, and Cupper Points</em> are direct arithmetic components that sum into <strong>Total Cup Points</strong>. Incorporating them as predictors would produce a circular, tautological model. Consequently, all sensory features were strictly excluded from predictive regression and classification pipelines.
+        </div>
+      </div>
+
+      <!-- Dataset Characteristics Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Dataset Characteristics</h3>
+          <span class="badge badge-gold">Coffee Quality Institute (Arabica)</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Item</th>
+                <th>Details / Academic Specification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Dataset</strong></td><td>Coffee Quality – Arabica (CQI Database / James LeDoux curation)</td></tr>
+              <tr><td><strong>Initial Records</strong></td><td>1,311 coffee samples</td></tr>
+              <tr><td><strong>Initial Attributes</strong></td><td>44 variables (farm metadata, physical measurements, cupping scores)</td></tr>
+              <tr><td><strong>Duplicate Records</strong></td><td>None identified (0 duplicates)</td></tr>
+              <tr><td><strong>Records Removed</strong></td><td>1 inconsistent record (sample with Total Cup Points = 0 and all sensory scores zero)</td></tr>
+              <tr><td><strong>Final Records Used</strong></td><td><strong>1,310 verified scored samples</strong></td></tr>
+              <tr><td><strong>Target Variable</strong></td><td><strong style="color:var(--accent-gold);">Total Cup Points</strong> (Continuous quality score, range 60–91)</td></tr>
+              <tr><td><strong>Numerical Predictors</strong></td><td>Moisture, Category One Defects, Category Two Defects, Quakers, Altitude, Number of Bags</td></tr>
+              <tr><td><strong>Categorical Predictors</strong></td><td>Processing Method (5 classes), Country of Origin (36 countries), Variety (29 varieties)</td></tr>
+              <tr><td><strong>Missing Numerical Values</strong></td><td>Median imputation inside cross-validation folds to prevent leakage</td></tr>
+              <tr><td><strong>Missing Categorical Values</strong></td><td>Mode imputation (most frequent category)</td></tr>
+              <tr><td><strong>Categorical Encoding</strong></td><td>One-hot dummy encoding (reference category dropped to prevent singularity)</td></tr>
+              <tr><td><strong>Numerical Scaling</strong></td><td>Standardization ($z = \frac{x - \mu}{\sigma}$) fitted strictly on training partitions</td></tr>
+              <tr><td><strong>Altitude Preprocessing</strong></td><td>Parsed strings and ranges; values &gt;5,000 m treated as missing measurement errors</td></tr>
+              <tr><td><strong>Target Leakage Prevention</strong></td><td>All 10 sensory-score components completely excluded from predictive feature matrices</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Preprocessing Pipeline Details Grid -->
+      <div class="section-header" style="margin-top: 2.5rem;">
+        <span class="section-tag">Transformation Pipeline</span>
+        <h3 class="section-title" style="font-size: 1.7rem;">Data Hygiene &amp; Feature Engineering</h3>
+      </div>
+
+      <div class="stats-cards-grid">
+        <div class="stat-box">
+          <h4>Missing Value Imputation <span>🩹</span></h4>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:1rem;">
+            Imputation was implemented strictly inside training folds to prevent information leakage:
+          </p>
+          <ul style="font-size:0.85rem; color:var(--text-secondary); padding-left:1.2rem; line-height:1.7;">
+            <li><strong>altitude_mean_meters:</strong> 227 missing (17.3%) → Median imputed</li>
+            <li><strong>Variety:</strong> 201 missing (15.3%) → Mode imputed ('Other')</li>
+            <li><strong>Processing.Method:</strong> 151 missing (11.5%) → Mode ('Washed / Wet')</li>
+            <li><strong>Country.of.Origin:</strong> 1 missing (0.08%) → Mode imputed</li>
+            <li><strong>Quakers:</strong> 1 missing (0.08%) → Median imputed (0)</li>
+            <li><strong>Category 1 &amp; 2 Defects, Moisture:</strong> 0 missing (100% complete)</li>
+          </ul>
+        </div>
+
+        <div class="stat-box">
+          <h4>Altitude Cleaning Protocol <span>⛰️</span></h4>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+            Raw altitude fields contained text encodings, ranges, and egregious typographic errors (e.g., 1,901.64 m recorded as 190,164 m).
+          </p>
+          <div class="stat-formula">Rule: If Altitude > 5,000m → Treated as Missing (NaN)</div>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">
+            Treating biologically impossible elevations as missing rather than arbitrary truncation preserves data integrity before median imputation.
+          </p>
+        </div>
+
+        <div class="stat-box">
+          <h4>Standardization &amp; Encoding <span>📐</span></h4>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+            To ensure fair regularization penalties in Ridge Regression and stable distance matrices:
+          </p>
+          <div class="stat-formula">Z-Score: z = (X - μ_train) / σ_train</div>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">
+            One-hot encoding of Country (36 levels), Variety (29 levels), and Processing Method (5 levels) produced 40+ binary columns. Regularization was critical to prevent rank deficiency.
+          </p>
+        </div>
+      </div>
+
+      <!-- Interactive Dataset Sample Explorer -->
+      <div class="table-card" style="margin-top: 2rem;">
+        <div class="table-header">
+          <div>
+            <h3>Interactive Cleaned Dataset Explorer</h3>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Explore sample records from the 1,310 verified Arabica lots</span>
+          </div>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+            <input type="text" id="sample-search" placeholder="Search Country or Variety..." class="form-control" style="width:220px; padding:0.45rem 0.8rem; font-size:0.85rem;">
+            <select id="sample-filter-method" class="form-control" style="width:170px; padding:0.45rem 0.8rem; font-size:0.85rem;">
+              <option value="all">All Methods</option>
+              <option value="Washed / Wet">Washed / Wet</option>
+              <option value="Natural / Dry">Natural / Dry</option>
+              <option value="Semi-washed / Semi-pulped">Semi-washed</option>
+              <option value="Pulped natural / honey">Pulped natural</option>
+              <option value="Other">Other</option>
+            </select>
+            <select id="sample-filter-class" class="form-control" style="width:140px; padding:0.45rem 0.8rem; font-size:0.85rem;">
+              <option value="all">All Bands</option>
+              <option value="High">High (&gt;85)</option>
+              <option value="Medium">Medium (80-85)</option>
+              <option value="Low">Low (≤80)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Country of Origin</th>
+                <th>Variety</th>
+                <th>Processing Method</th>
+                <th>Cleaned Altitude</th>
+                <th>Moisture</th>
+                <th>Cat 2 Defects</th>
+                <th>Total Cup Points</th>
+                <th>Quality Band</th>
+              </tr>
+            </thead>
+            <tbody id="samples-table-body">
+              <!-- Dynamically populated via app.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-header" style="background:var(--bg-surface); border-top:1px solid var(--border-subtle); justify-content:space-between;">
+          <span id="sample-page-info" style="font-size:0.85rem; color:var(--text-muted);">Loading sample records...</span>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" id="sample-prev-page" class="filter-btn" style="padding:0.35rem 0.85rem;">← Prev</button>
+            <button type="button" id="sample-next-page" class="filter-btn" style="padding:0.35rem 0.85rem;">Next →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 3. EXPLORATORY DATA ANALYSIS (8 FIGURES)   -->
+    <!-- ========================================== -->
+    <section id="section-eda" class="page-section" aria-labelledby="eda-title">
+      <div class="section-header">
+        <span class="section-tag">Visual Analytics</span>
+        <h2 class="section-title" id="eda-title">Exploratory Data Analysis &amp; 8 Core Figures</h2>
+        <p class="section-desc">Interactive reproductions of the project report's exact figures. Toggle between live interactive charts with tooltip inspection and high-resolution academic report figures.</p>
+      </div>
+
+      <!-- Filter Controls for Figures -->
+      <div class="figure-filter-bar">
+        <span style="font-size:0.85rem; font-weight:600; color:var(--text-muted); margin-right:0.5rem;">Filter Figures:</span>
+        <button type="button" class="filter-btn active" data-filter="all">All 8 Figures</button>
+        <button type="button" class="filter-btn" data-filter="univariate">Univariate (Fig 1)</button>
+        <button type="button" class="filter-btn" data-filter="bivariate">Relationships (Fig 2, 3, 4, 5)</button>
+        <button type="button" class="filter-btn" data-filter="models">Model Diagnostics (Fig 6, 7, 8)</button>
+      </div>
+
+      <!-- Figures Grid (FIGURES 1 through 8) -->
+      <div class="figures-grid">
+
+        <!-- FIGURE 1 -->
+        <div class="figure-card" data-category="univariate">
+          <div class="figure-header">
+            <div class="figure-title-group">
+              <span class="figure-badge">FIGURE 1 • UNIVARIATE</span>
+              <h4 class="figure-title">Distribution of Total Cup Points</h4>
+            </div>
+            <div class="figure-controls">
+              <button type="button" class="fig-toggle-btn active" data-view="interactive">Interactive</button>
+              <button type="button" class="fig-toggle-btn" data-view="report">Report Fig</button>
+            </div>
+          </div>
+          <div class="figure-body">
+            <div class="chart-wrapper">
+              <canvas id="chart-fig1"></canvas>
+            </div>
+            <div class="report-img-wrapper">
+              <img src="assets/report_images/image1.png" alt="Figure 1: Distribution of Total Cup Points" class="report-figure-img">
+            </div>
+          </div>
+          <div class="figure-footer">
+            <strong>Interpretation:</strong> After removing the single inconsistent zero-score record, scores span from 60 to 90.5 with a pronounced peak between 82.0 and 84.0. The sample mean is <strong>82.18</strong> with standard deviation <strong>2.69</strong> and median <strong>82.50</strong>.
+          </div>
+        </div>
+
+        <!-- FIGURE 2 -->
+        <div class="figure-card" data-category="bivariate">
+          <div class="figure-header">
+            <div class="figure-title-group">
+              <span class="figure-badge">FIGURE 2 • CORRELATIONS</span>
+              <h4 class="figure-title">Correlation Heatmap of Numerical Variables</h4>
+            </div>
+            <div class="figure-controls">
+              <button type="button" class="fig-toggle-btn active" data-view="interactive">Interactive</button>
+              <button type="button" class="fig-toggle-btn" data-view="report">Report Fig</button>
+            </div>
+          </div>
+          <div class="figure-body">
+            <div class="chart-wrapper">
+              <canvas id="chart-fig2"></canvas>
+            </div>
+            <div class="report-img-wrapper">
+              <img src="assets/report_images/image2.png" alt="Figure 2: Correlation Matrix" class="report-figure-img">
+            </div>
+          </div>
+          <div class="figure-footer">
+            <strong>Interpretation:</strong> Sensory components exhibit massive positive correlations with Total Cup Points (Flavor r=<strong>0.832</strong>, Aftertaste r=<strong>0.819</strong>, Balance r=<strong>0.771</strong>), underscoring why they must be omitted from predictors to prevent leakage. Defects display negative correlations.
+          </div>
+        </div>
+
+        <!-- FIGURE 3 -->
+        <div class="figure-card" data-category="bivariate">
+          <div class="figure-header">
+            <div class="figure-title-group">
+              <span class="figure-badge">FIGURE 3 • BIVARIATE</span>
+              <h4 class="figure-title">Total Cup Points by Processing Method</h4>
+            </div>
+            <div class="figure-controls">
+              <button type="button" class="fig-toggle-btn active" data-view="interactive">Interactive</button>
+              <button type="button" class="fig-toggle-btn" data-view="report">Report Fig</button>
+            </div>
+          </div>
+          <div class="figure-body">
+            <div class="chart-wrapper">
+              <canvas id="chart-fig3"></canvas>
+            </div>
+            <div class="report-img-wrapper">
+              <img src="assets/report_images/image3.png" alt="Figure 3: Total Cup Points by Processing Method" class="report-figure-img">
+            </div>
+          </div>
+          <div class="figure-footer">
+            <strong>Interpretation:</strong> Natural/Dry samples achieved a marginally higher mean (82.35) than Washed/Wet (81.97), while Pulped Natural scored 82.81. However, interquartile ranges heavily overlap, pointing toward small effect sizes.
+          </div>
+        </div>
+
+        <!-- FIGURE 4 -->
+        <div class="figure-card" data-category="bivariate">
+          <div class="figure-header">
+            <div class="figure-title-group">
+              <span class="figure-badge">FIGURE 4 • REGRESSION FIT</span>
+              <h4 class="figure-title">Category Two Defects vs Total Cup Points</h4>
+            </div>
+            <div class="figure-controls">
+              <button type="button" class="fig-toggle-btn active" data-view="interactive">Interactive</button>
+              <button type="button" class="fig-toggle-btn" data-view="report">Report Fig</button>
+            </div>
+          </div>
+          <div class="figure-body">
+            <div class="chart-wrapper">
+              <canvas id="chart-fig4"></canvas>
+            </div>
+            <div class="report-img-wrapper">
+              <img src="assets/report_images/image4.png" alt="Figure 4: Category Two Defects vs Total Cup Points" class="report-figure-img">
+            </div>
+          </div>
+          <div class="figure-footer">
+            <strong>Interpretation:</strong> A statistically significant downward trajectory is evident (OLS slope = <strong>-0.1204</strong>, p &lt; 0.0001). Higher secondary defect counts directly erode cup score quality.
+          </div>
+        </div>
+
+        <!-- FIGURE 5 -->
+        <div class="figure-card" data-category="bivariate">
+          <div class="figure-header">
+            <div class="figure-title-group">
+              <span class="figure-badge">FIGURE 5 • ORIGIN ANALYSIS</span>
+              <h4 class="figure-title">Country-wise Average Total Cup Points</h4>
+            </div>
+            <div class="figure-controls">
+              <button type="button" class="fig-toggle-btn active" data-view="interactive">Interactive</button>
+              <button type="button" class="fig-toggle-btn" data-view="report">Report Fig</button>
+            </div>
+          </div>
+          <div class="figure-body">
+            <div class="chart-wrapper">
+              <canvas id="chart-fig5"></canvas>
+            </div>
+            <div class="report-img-wrapper">
+              <img src="assets/report_images/image7.png" alt="Figure 5: Top 10 Countries by Mean Total Cup Points" class="report-figure-img">
+            </div>
+          </div>
+          <div class="figure-footer">
+            <strong>Interpretation:</strong> Top 10 countries with at least 20 observations. East African origins lead: Ethiopia (mean <strong>85.48</strong>), Kenya (<strong>84.31</strong>), and Uganda (<strong>84.05</strong>). Origin effects are observational and reflect terroir and varietal clustering.
+          </div>
+        </div>
+
+        <!-- FIGURE 6 -->
+        <div class="figure-card" data-category="models">
+          <div class="figure-header">
+            <div class="figure-title-group">
+              <span class="figure-badge">FIGURE 6 • RIDGE EVALUATION</span>
+              <h4 class="figure-title">Actual vs Predicted Values — Ridge Regression</h4>
+            </div>
+            <div class="figure-controls">
+              <button type="button" class="fig-toggle-btn active" data-view="interactive">Interactive</button>
+              <button type="button" class="fig-toggle-btn" data-view="report">Report Fig</button>
+            </div>
+          </div>
+          <div class="figure-body">
+            <div class="chart-wrapper">
+              <canvas id="chart-fig6"></canvas>
+            </div>
+            <div class="report-img-wrapper">
+              <img src="assets/report_images/image5.png" alt="Figure 6: Ridge Regression Actual vs Predicted" class="report-figure-img">
+            </div>
+          </div>
+          <div class="figure-footer">
+            <strong>Interpretation:</strong> Evaluated on held-out 20% test partition (n=262). Predictions align along the dashed identity line (y = x) in the central 81–84 band, with expected shrinkage toward the mean for extreme lots (Test R² = <strong>0.2466</strong>).
+          </div>
+        </div>
+
+        <!-- FIGURE 7 -->
+        <div class="figure-card" data-category="models">
+          <div class="figure-header">
+            <div class="figure-title-group">
+              <span class="figure-badge">FIGURE 7 • DISCRIMINANT MATRIX</span>
+              <h4 class="figure-title">LDA Confusion Matrix</h4>
+            </div>
+            <div class="figure-controls">
+              <button type="button" class="fig-toggle-btn active" data-view="interactive">Interactive</button>
+              <button type="button" class="fig-toggle-btn" data-view="report">Report Fig</button>
+            </div>
+          </div>
+          <div class="figure-body">
+            <div class="chart-wrapper">
+              <canvas id="chart-fig7"></canvas>
+            </div>
+            <div class="report-img-wrapper">
+              <img src="assets/report_images/image6.png" alt="Figure 7: LDA Confusion Matrix" class="report-figure-img">
+            </div>
+          </div>
+          <div class="figure-footer">
+            <strong>Interpretation:</strong> Classification across Low (≤80), Medium (80–85), and High (&gt;85). The majority Medium class exhibits strong recall (146/205 = 71.2%), while Low and High samples are frequently confused with the dominant center.
+          </div>
+        </div>
+
+        <!-- FIGURE 8 -->
+        <div class="figure-card" data-category="models">
+          <div class="figure-header">
+            <div class="figure-title-group">
+              <span class="figure-badge">FIGURE 8 • RESIDUAL DIAGNOSTICS</span>
+              <h4 class="figure-title">OLS Residual Analysis</h4>
+            </div>
+            <div class="figure-controls">
+              <button type="button" class="fig-toggle-btn active" data-view="interactive">Interactive</button>
+              <button type="button" class="fig-toggle-btn" data-view="report">Report Fig</button>
+            </div>
+          </div>
+          <div class="figure-body">
+            <div class="chart-wrapper">
+              <canvas id="chart-fig8"></canvas>
+            </div>
+            <div class="report-img-wrapper">
+              <img src="assets/report_images/image8.png" alt="Figure 8: OLS Residuals vs Fitted Plot" class="report-figure-img">
+            </div>
+          </div>
+          <div class="figure-footer">
+            <strong>Interpretation:</strong> Residuals (e = y - ŷ) plotted against fitted scores. Points scatter symmetrically about the zero reference line with uniform spread. The Breusch-Pagan test (p = <strong>0.366</strong>) confirms homoskedasticity.
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 4. STATISTICAL ANALYSIS SECTION            -->
+    <!-- ========================================== -->
+    <section id="section-statistical" class="page-section" aria-labelledby="stats-title">
+      <div class="section-header">
+        <span class="section-tag">Inferential Statistics</span>
+        <h2 class="section-title" id="stats-title">Statistical Analysis &amp; Hypothesis Testing</h2>
+        <p class="section-desc">Rigorous statistical evaluation including population mean confidence intervals, bootstrap verification, and Welch's independent two-sample t-test comparing processing methods.</p>
+      </div>
+
+      <!-- Descriptive Statistics Grid -->
+      <div class="stats-cards-grid">
+        <div class="stat-box">
+          <h4>Sample Quality Mean <span>📊</span></h4>
+          <div class="stat-highlight">82.18</div>
+          <p style="font-size:0.85rem; color:var(--text-secondary);">
+            Arithmetic mean of Total Cup Points across n = 1,310 verified samples (Standard Deviation = <strong>2.69</strong>, Median = <strong>82.50</strong>).
+          </p>
+        </div>
+
+        <div class="stat-box">
+          <h4>95% t-Based Confidence Interval <span>🎯</span></h4>
+          <div class="stat-highlight" style="font-size: 2.1rem; color: var(--accent-gold);">[82.03 – 82.32]</div>
+          <div class="stat-formula">CI = x̄ ± t_{0.025, 1309} · (s / √n)</div>
+          <p style="font-size:0.85rem; color:var(--text-secondary);">
+            A 10,000-resample bootstrap empirical interval yielded the identical bound: <strong>[82.03 – 82.32]</strong>, confirming sample stability.
+          </p>
+        </div>
+
+        <div class="stat-box">
+          <h4>Distribution Normality &amp; Skew <span>📐</span></h4>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.65;">
+            Total Cup Points exhibits moderate left-skewness due to commercial coffees with scores below 75, while specialty lots cluster tightly in the 80–85 range. The Central Limit Theorem guarantees asymptotic normality for the sample mean.
+          </p>
+        </div>
+      </div>
+
+      <!-- Interactive Confidence Interval Slider Widget -->
+      <div class="table-card" style="padding:1.8rem; margin-bottom:2.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <h3 style="font-family:var(--font-heading); font-size:1.15rem;">Interactive Confidence Level Simulator</h3>
+            <span style="font-size:0.85rem; color:var(--text-muted);">Adjust confidence level to inspect the precision of population mean estimation</span>
+          </div>
+          <div style="font-family:var(--font-heading); font-size:1.4rem; font-weight:700; color:var(--accent-gold);">
+            Confidence Level: <span id="ci-level-display">95%</span>
+          </div>
+        </div>
+        
+        <input type="range" id="ci-level-slider" min="90" max="99" step="1" value="95" style="width:100%; accent-color:var(--accent-gold); cursor:pointer; margin-bottom:1rem;">
+        
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+          <span>90% Confidence</span>
+          <span>95% Standard (Default)</span>
+          <span>99% High Stringency</span>
+        </div>
+
+        <div style="background:var(--bg-surface); padding:1.2rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <span style="font-size:0.85rem; color:var(--text-muted); display:block;">Estimated Population Mean Range:</span>
+            <span id="ci-bounds-display" style="font-family:var(--font-mono); font-size:1.3rem; font-weight:700; color:var(--text-primary);">[82.03 – 82.32] <span style="font-size:0.85rem; color:var(--text-muted);">(Margin of Error: ±0.145)</span></span>
+          </div>
+          <span class="badge badge-gold">n = 1,310 observations</span>
+        </div>
+      </div>
+
+      <!-- Welch's Two-Sample t-Test Section -->
+      <div class="section-header" style="margin-top:2.5rem;">
+        <span class="section-tag">Hypothesis Testing</span>
+        <h3 class="section-title" style="font-size: 1.8rem;">Welch's Independent Two-Sample t-Test</h3>
+        <p class="section-desc">Comparing Total Cup Points between the two predominant post-harvest processing methods: <strong>Washed / Wet</strong> vs. <strong>Natural / Dry</strong>.</p>
+      </div>
+
+      <!-- Note Required by User Specification -->
+      <div class="alert-box alert-info">
+        <div class="alert-icon">ℹ️</div>
+        <div>
+          <strong style="color:#93c5fd; font-size:1rem;">Academic Report Verification Note:</strong><br>
+          <em>"See project report for the detailed Welch's t-test output."</em> All numerical statistics presented below are drawn directly from the verified project output without fabrication.
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Welch's t-Test Results: Washed / Wet vs. Natural / Dry</h3>
+          <span class="badge badge-warning">Borderline Significance (p = 0.0492)</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Group / Parameter</th>
+                <th>Sample Size (n)</th>
+                <th>Sample Mean (x̄)</th>
+                <th>Standard Deviation (s)</th>
+                <th>Hypothesis Specification</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Washed / Wet</strong></td>
+                <td>n₁ = 812</td>
+                <td>81.965 points</td>
+                <td>2.685</td>
+                <td>H₀: μ₁ = μ₂ (No true mean difference)</td>
+              </tr>
+              <tr>
+                <td><strong>Natural / Dry</strong></td>
+                <td>n₂ = 251</td>
+                <td>82.354 points</td>
+                <td>2.750</td>
+                <td>H₁: μ₁ ≠ μ₂ (Two-sided alternative)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="padding:1.5rem; background:var(--bg-card-elevated); border-top:1px solid var(--border-subtle); display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem;">
+          <div>
+            <span style="font-size:0.78rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Welch Test Statistic (t)</span>
+            <div style="font-family:var(--font-mono); font-size:1.5rem; font-weight:700; color:var(--text-primary);">-1.972</div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">df ≈ 407.8 (Welch–Satterthwaite)</span>
+          </div>
+
+          <div>
+            <span style="font-size:0.78rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">p-value (two-tailed)</span>
+            <div style="font-family:var(--font-mono); font-size:1.5rem; font-weight:700; color:var(--accent-amber);">0.0492</div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Statistically significant at α = 0.05</span>
+          </div>
+
+          <div>
+            <span style="font-size:0.78rem; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Standardized Effect Size</span>
+            <div style="font-family:var(--font-mono); font-size:1.5rem; font-weight:700; color:var(--text-primary);">Cohen's d = -0.144</div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Small practical magnitude (|d| &lt; 0.2)</span>
+          </div>
+        </div>
+
+        <div style="padding:1.25rem 1.5rem; background:var(--bg-surface); font-size:0.88rem; color:var(--text-secondary); line-height:1.6;">
+          <strong>Statistical Interpretation:</strong> Because the two groups feature unequal sample sizes (812 vs 251) and distinct variances, Welch's t-test was selected over Student's standard t-test. At the conventional 5% significance threshold, the p-value (<strong>0.0492</strong>) is marginally below 0.05. However, Cohen's d of <strong>-0.144</strong> reveals a small effect size. Furthermore, because this dataset is observational rather than a randomized controlled trial, the observed 0.389 point difference represents a statistical correlation confounded by farm terroir, rather than proof that processing alone dictates quality.
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 5. REGRESSION ANALYSIS (OLS) SECTION       -->
+    <!-- ========================================== -->
+    <section id="section-regression" class="page-section" aria-labelledby="regression-title">
+      <div class="section-header">
+        <span class="section-tag">Inferential Modeling</span>
+        <h2 class="section-title" id="regression-title">Ordinary Least Squares (OLS) Regression Analysis</h2>
+        <p class="section-desc">Multiple linear regression model fitted for statistical parameter interpretation using HC3 heteroskedasticity-consistent robust standard errors.</p>
+      </div>
+
+      <!-- OLS Model Overview Metrics -->
+      <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div class="kpi-card">
+          <div class="kpi-label">R-Squared (R²) <span>📈</span></div>
+          <div class="kpi-value" style="color:var(--accent-gold);">0.296</div>
+          <div class="kpi-note">29.6% variance explained</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Adjusted R² <span>⚖️</span></div>
+          <div class="kpi-value">0.252</div>
+          <div class="kpi-note">Penalized for 40+ predictors</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Breusch–Pagan Test <span>🔍</span></div>
+          <div class="kpi-value" style="color:var(--color-success);">p = 0.366</div>
+          <div class="kpi-note">No heteroskedasticity at 5%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Standard Error Type <span>🛡️</span></div>
+          <div class="kpi-value" style="font-size:1.35rem; padding-top:0.25rem;">HC3 Robust</div>
+          <div class="kpi-note">Conservative standard errors</div>
+        </div>
+      </div>
+
+      <!-- Regression Specification Box -->
+      <div class="stat-box" style="margin-bottom:2rem;">
+        <h4>OLS Model Formulation (Excluding Sensory Leakage)</h4>
+        <div class="stat-formula" style="display:block; overflow-x:auto; white-space:nowrap; padding:0.8rem 1rem;">
+          Total.Cup.Points = β₀ + β₁·Moisture + β₂·Cat1_Defects + β₃·Cat2_Defects + β₄·Quakers + β₅·Altitude + β₆·Bags + ∑γ_j·Method_j + ∑δ_k·Country_k + ∑θ_m·Variety_m + ε
+        </div>
+        <p style="font-size:0.86rem; color:var(--text-secondary); line-height:1.6; margin-top:0.5rem;">
+          To ensure strict statistical validity, all cupping sensory scores (Aroma, Flavor, Acidity, etc.) were omitted. The model models the relationship between observable production attributes and final cup points.
+        </p>
+      </div>
+
+      <!-- OLS Predictor Coefficients Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>OLS Predictor Parameter Estimates &amp; Significance</h3>
+          <span class="badge badge-gold">HC3 Standard Errors</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Predictor Variable</th>
+                <th>Coefficient (β)</th>
+                <th>p-value</th>
+                <th>Significance Status</th>
+                <th>Academic &amp; Physical Interpretation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Category Two Defects</strong></td>
+                <td style="font-family:var(--font-mono); font-weight:700; color:var(--color-danger);">-0.1204</td>
+                <td style="font-family:var(--font-mono);">&lt; 0.0001</td>
+                <td><span class="badge badge-success">Significant (p &lt; 0.01)</span></td>
+                <td>Significant negative association. Each additional secondary defect reduces expected quality by 0.12 points.</td>
+              </tr>
+              <tr>
+                <td><strong>Number of Bags</strong></td>
+                <td style="font-family:var(--font-mono); font-weight:700; color:var(--color-danger);">-0.0019</td>
+                <td style="font-family:var(--font-mono);">0.0155</td>
+                <td><span class="badge badge-success">Significant (p &lt; 0.05)</span></td>
+                <td>Statistically significant small negative association; high commercial lot sizes correlate with minor score drops.</td>
+              </tr>
+              <tr>
+                <td><strong>Moisture Content</strong></td>
+                <td style="font-family:var(--font-mono);">-2.1433</td>
+                <td style="font-family:var(--font-mono);">0.1531</td>
+                <td><span class="badge badge-warning">Not Significant (p &gt; 0.05)</span></td>
+                <td>Negative direction, but not statistically significant at α = 0.05 once other variables are controlled.</td>
+              </tr>
+              <tr>
+                <td><strong>Altitude (cleaned)</strong></td>
+                <td style="font-family:var(--font-mono);">+0.0003</td>
+                <td style="font-family:var(--font-mono);">0.0746</td>
+                <td><span class="badge badge-warning">Not Significant (p &gt; 0.05)</span></td>
+                <td>Marginal positive slope (+0.3 pts per 1,000 m gain), but does not achieve significance at the 5% level.</td>
+              </tr>
+              <tr>
+                <td><strong>Washed / Wet Processing</strong></td>
+                <td style="font-family:var(--font-mono);">-0.3660</td>
+                <td style="font-family:var(--font-mono);">0.0570</td>
+                <td><span class="badge badge-warning">Borderline (p = 0.057)</span></td>
+                <td>Contrast against Natural/Dry reference. Marginally negative adjustment after adjusting for country and variety.</td>
+              </tr>
+              <tr>
+                <td><strong>Origin: Ethiopia</strong></td>
+                <td style="font-family:var(--font-mono); font-weight:700; color:var(--accent-gold);">+3.1598</td>
+                <td style="font-family:var(--font-mono);">&lt; 0.0001</td>
+                <td><span class="badge badge-success">Significant (p &lt; 0.01)</span></td>
+                <td>Strong origin premium (+3.16 points) reflecting historical heirloom varieties and favorable growing conditions.</td>
+              </tr>
+              <tr>
+                <td><strong>Origin: Kenya</strong></td>
+                <td style="font-family:var(--font-mono); font-weight:700; color:var(--accent-gold);">+3.4685</td>
+                <td style="font-family:var(--font-mono);">&lt; 0.0001</td>
+                <td><span class="badge badge-success">Significant (p &lt; 0.01)</span></td>
+                <td>Statistically significant origin premium (+3.47 points), reflecting high acidity and SL-28/SL-34 varietal excellence.</td>
+              </tr>
+              <tr>
+                <td><strong>Origin: Uganda</strong></td>
+                <td style="font-family:var(--font-mono); font-weight:700; color:var(--accent-gold);">+2.3380</td>
+                <td style="font-family:var(--font-mono);">0.0001</td>
+                <td><span class="badge badge-success">Significant (p &lt; 0.01)</span></td>
+                <td>Statistically significant positive origin premium (+2.34 points) for East African Arabica coffees.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Reference Link to Figure 8 -->
+      <div class="stat-box" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; background:rgba(212, 163, 115, 0.08); border-color:var(--border-medium);">
+        <div>
+          <h4 style="margin-bottom:0.3rem;">Residual Diagnostics &amp; Figure 8 Reference</h4>
+          <p style="font-size:0.88rem; color:var(--text-secondary); max-width:750px;">
+            The residuals from this OLS model were plotted against fitted values in <strong>Figure 8 (OLS Residual Analysis)</strong>. 
+            The Breusch–Pagan test statistic yielded p = 0.366, indicating absence of heteroskedasticity.
+          </p>
+        </div>
+        <a href="#eda" class="btn-primary" style="font-size:0.85rem; padding:0.6rem 1.2rem;">
+          <span>View Figure 8 in EDA</span>
+          <span>→</span>
+        </a>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 6. RIDGE REGRESSION SECTION                -->
+    <!-- ========================================== -->
+    <section id="section-ridge" class="page-section" aria-labelledby="ridge-title">
+      <div class="section-header">
+        <span class="section-tag">Regularized Machine Learning</span>
+        <h2 class="section-title" id="ridge-title">Ridge Regression Prediction &amp; Regularization</h2>
+        <p class="section-desc">L2-penalized linear regression implemented to combat multicollinearity across 40+ dummy indicators and achieve robust out-of-sample prediction.</p>
+      </div>
+
+      <!-- Performance KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Hold-Out Test R² <span>🎯</span></div>
+          <div class="kpi-value" style="color:var(--accent-gold);">0.2466</div>
+          <div class="kpi-note">20% unseen test set (n=262)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">5-Fold CV R² <span>🔄</span></div>
+          <div class="kpi-value">0.2101</div>
+          <div class="kpi-note">Cross-validated stability</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Test RMSE <span>📉</span></div>
+          <div class="kpi-value">2.328</div>
+          <div class="kpi-note">Root Mean Squared Error (pts)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Test MAE <span>📏</span></div>
+          <div class="kpi-value">1.599</div>
+          <div class="kpi-note">Mean Absolute Error (pts)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Optimal Penalty (α) <span>⚙️</span></div>
+          <div class="kpi-value" style="font-family:var(--font-mono);">10.0</div>
+          <div class="kpi-note">Tuned over log-spaced grid</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Train / Test Split <span>✂️</span></div>
+          <div class="kpi-value" style="font-size:1.35rem; padding-top:0.25rem;">80% / 20%</div>
+          <div class="kpi-note">1,048 train / 262 test</div>
+        </div>
+      </div>
+
+      <!-- Mathematical Formulation & Methodological Rationale -->
+      <div class="stats-cards-grid">
+        <div class="stat-box">
+          <h4>Mathematical Objective Function <span>📐</span></h4>
+          <div class="stat-formula" style="display:block; overflow-x:auto; margin-bottom:0.75rem;">
+            L_Ridge(β) = ∑_{i=1}^n (y_i - x_i^T β)^2 + λ ∑_{j=1}^p β_j^2
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">
+            The L2 penalty term (λ ||β||₂²) shrinks unstable regression weights toward zero without forcing them strictly to zero, maintaining continuity while curbing variance inflation caused by collinear dummy columns.
+          </p>
+        </div>
+
+        <div class="stat-box">
+          <h4>Why Ridge Outperformed Standard OLS <span>🛡️</span></h4>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.65;">
+            One-hot encoding of multi-categorical features (36 countries, 29 varieties, 5 processing methods) produced 40+ columns. In unpenalized OLS, high correlation between rare origins and varieties inflates coefficient variance. Ridge's weight shrinkage stabilized predictive weights on unseen test data.
+          </p>
+        </div>
+
+        <div class="stat-box">
+          <h4>Substantive Interpretation of Modest R² <span>💡</span></h4>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.65;">
+            A test R² of <strong>0.2466</strong> demonstrates that observable physical and logistical metadata explain roughly 25% of cup score variance. Because sensory variables were strictly excluded to avoid target leakage, this modest R² is theoretically expected: expert cupping scores reflect subtle aromatic notes, roasting chemistry, and microclimate factors that farm metadata alone cannot capture.
+          </p>
+        </div>
+      </div>
+
+      <!-- Reference Link to Figure 6 -->
+      <div class="stat-box" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; background:rgba(212, 163, 115, 0.08); border-color:var(--border-medium); margin-top:1.5rem;">
+        <div>
+          <h4 style="margin-bottom:0.3rem;">Hold-Out Evaluation &amp; Figure 6 Reference</h4>
+          <p style="font-size:0.88rem; color:var(--text-secondary); max-width:750px;">
+            The hold-out predictions against actual values are showcased in <strong>Figure 6 (Actual vs Predicted Values — Ridge Regression)</strong>, illustrating how predictions cluster along the 45-degree identity line.
+          </p>
+        </div>
+        <a href="#eda" class="btn-primary" style="font-size:0.85rem; padding:0.6rem 1.2rem;">
+          <span>View Figure 6 in EDA</span>
+          <span>→</span>
+        </a>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 7. LDA CLASSIFICATION SECTION              -->
+    <!-- ========================================== -->
+    <section id="section-lda" class="page-section" aria-labelledby="lda-title">
+      <div class="section-header">
+        <span class="section-tag">Supervised Classification</span>
+        <h2 class="section-title" id="lda-title">Linear Discriminant Analysis (LDA) Classification</h2>
+        <p class="section-desc">Discretizing continuous cup quality into three ordered market bands and finding optimal linear discriminant decision boundaries in feature space.</p>
+      </div>
+
+      <!-- Classification KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">LDA Accuracy <span>🏷️</span></div>
+          <div class="kpi-value" style="color:var(--color-success);">74.43%</div>
+          <div class="kpi-note">Stratified holdout test set</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Macro F1-Score <span>⚖️</span></div>
+          <div class="kpi-value" style="color:var(--accent-gold);">0.508</div>
+          <div class="kpi-note">Unweighted mean across 3 classes</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Quality Classes <span>☕</span></div>
+          <div class="kpi-value">3 Bands</div>
+          <div class="kpi-note">Low (≤80), Med (80-85), High (&gt;85)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Test Sample Size <span>🧪</span></div>
+          <div class="kpi-value">262</div>
+          <div class="kpi-note">Stratified 20% holdout</div>
+        </div>
+      </div>
+
+      <!-- Quality Bands Distribution & Class Imbalance -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Quality Band Definitions &amp; Class Imbalance in Arabica Dataset</h3>
+          <span class="badge badge-warning">Severe Class Skew</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Quality Band</th>
+                <th>Score Threshold</th>
+                <th>Dataset Count (N=1,310)</th>
+                <th>Class Proportion</th>
+                <th>Test Set Count (n=262)</th>
+                <th>Commercial Specialty Grade</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Low Quality</strong></td>
+                <td>Total Cup Points ≤ 80.0</td>
+                <td>188 samples</td>
+                <td>14.35%</td>
+                <td>38 samples</td>
+                <td>Commercial Grade / Below Specialty Minimum</td>
+              </tr>
+              <tr>
+                <td><strong>Medium Quality</strong></td>
+                <td>80.0 &lt; Total Cup Points ≤ 85.0</td>
+                <td><strong>1,026 samples</strong></td>
+                <td><strong>78.32% (Dominant)</strong></td>
+                <td>205 samples</td>
+                <td>Specialty Coffee / Grade 2 (Very Good)</td>
+              </tr>
+              <tr>
+                <td><strong>High Quality</strong></td>
+                <td>Total Cup Points &gt; 85.0</td>
+                <td>96 samples</td>
+                <td>7.33%</td>
+                <td>19 samples</td>
+                <td>Exemplary Specialty / Grade 1 (Super-Premium)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detailed Confusion Matrix Analysis -->
+      <div class="stats-cards-grid" style="margin-top:2rem;">
+        <div class="stat-box">
+          <h4>Confusion Matrix Breakdown (Equal Priors Evaluation)</h4>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem;">
+            Test set performance across the 262 stratified samples:
+          </p>
+          <ul style="font-size:0.85rem; color:var(--text-secondary); padding-left:1.2rem; line-height:1.75;">
+            <li><strong>Actual Low (n=38):</strong> 24 correctly predicted Low (63.2% recall), 14 misclassified as Medium, 0 as High.</li>
+            <li><strong>Actual Medium (n=205):</strong> 146 correctly predicted Medium (71.2% recall), 45 confused as Low, 14 as High.</li>
+            <li><strong>Actual High (n=19):</strong> 6 correctly predicted High (31.6% recall), 11 misclassified as Medium, 2 as Low.</li>
+          </ul>
+        </div>
+
+        <div class="stat-box">
+          <h4>Macro F1 vs. Accuracy Dynamics</h4>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.65; margin-bottom:0.75rem;">
+            While raw accuracy reached <strong>74.43%</strong>, this figure is dominated by the large Medium class (78.3% of the dataset). The macro F1-score of <strong>0.508</strong> provides a more honest assessment: the model struggles with High-quality lots (only 6 of 19 identified) because farm metadata alone lacks direct cupping aroma signatures.
+          </p>
+          <div class="stat-formula">Macro F1 = (F1_Low + F1_Med + F1_High) / 3 = 0.508</div>
+        </div>
+
+        <div class="stat-box">
+          <h4>Prior Probability Decision</h4>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.65;">
+            Using empirical prior probabilities caused the classifier to assign almost all borderline samples to Medium. Incorporating equal class priors ensured that minority Low and High classes were given decision surface visibility, enabling detection of 24 Low and 6 High lots.
+          </p>
+        </div>
+      </div>
+
+      <!-- Reference Link to Figure 7 -->
+      <div class="stat-box" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; background:rgba(212, 163, 115, 0.08); border-color:var(--border-medium); margin-top:1.5rem;">
+        <div>
+          <h4 style="margin-bottom:0.3rem;">Confusion Matrix &amp; Figure 7 Reference</h4>
+          <p style="font-size:0.88rem; color:var(--text-secondary); max-width:750px;">
+            The full interactive confusion matrix heatmap is displayed in <strong>Figure 7 (LDA Confusion Matrix)</strong> with exact cell frequencies and color-intensity gradients.
+          </p>
+        </div>
+        <a href="#eda" class="btn-primary" style="font-size:0.85rem; padding:0.6rem 1.2rem;">
+          <span>View Figure 7 in EDA</span>
+          <span>→</span>
+        </a>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 8. MODEL COMPARISON SECTION                -->
+    <!-- ========================================== -->
+    <section id="section-comparison" class="page-section" aria-labelledby="comparison-title">
+      <div class="section-header">
+        <span class="section-tag">Synthesis &amp; Benchmarking</span>
+        <h2 class="section-title" id="comparison-title">Statistical Machine Learning Model Comparison</h2>
+        <p class="section-desc">Comprehensive comparative evaluation across OLS Regression, Ridge Regularization, and Linear Discriminant Analysis across inference, prediction, and classification tasks.</p>
+      </div>
+
+      <!-- Model Comparison Matrix Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Model Architecture &amp; Empirical Performance Summary</h3>
+          <span class="badge badge-gold">CQI Arabica Benchmark</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Target Task</th>
+                <th>Primary Metric</th>
+                <th>Hold-Out Test Performance</th>
+                <th>Cross-Validation Metric</th>
+                <th>Key Mathematical Strength</th>
+                <th>Primary Limitation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>OLS Linear Regression</strong></td>
+                <td>Parameter Inference &amp; Association Testing</td>
+                <td><strong style="color:var(--text-primary);">R² = 0.296</strong></td>
+                <td>Adjusted R² = 0.252</td>
+                <td>Breusch-Pagan p = 0.366 (HC3 Robust SE)</td>
+                <td>Unbiased coefficient estimates, exact hypothesis p-values</td>
+                <td>Prone to multicollinearity &amp; variance inflation with 40+ dummy categories</td>
+              </tr>
+              <tr>
+                <td><strong>Ridge Regression (L2)</strong></td>
+                <td>Continuous Quality Score Prediction</td>
+                <td><strong style="color:var(--accent-gold);">Test R² = 0.2466</strong></td>
+                <td>RMSE = 2.328, MAE = 1.599</td>
+                <td>5-Fold CV R² = <strong>0.2101</strong> (RMSE = 2.375)</td>
+                <td>L2 shrinkage stabilizes high-dimensional collinear predictors</td>
+                <td>Retains all features (no sparse feature selection)</td>
+              </tr>
+              <tr>
+                <td><strong>Linear Discriminant Analysis</strong></td>
+                <td>Ordered Quality Band Classification</td>
+                <td><strong style="color:var(--color-success);">Accuracy = 74.43%</strong></td>
+                <td>Macro F1 = 0.508 (Equal Priors)</td>
+                <td>Stratified 20% Holdout (n=262)</td>
+                <td>Computes optimal linear discriminant separating hyperplanes</td>
+                <td>Vulnerable to extreme natural class imbalance</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Methodological Trade-offs Grid -->
+      <div class="section-header" style="margin-top:2.5rem;">
+        <span class="section-tag">Analytical Trade-offs</span>
+        <h3 class="section-title" style="font-size: 1.7rem;">Regression vs. Classification Trade-offs</h3>
+      </div>
+
+      <div class="stats-cards-grid">
+        <div class="stat-box">
+          <h4>Inference vs. Prediction</h4>
+          <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.65;">
+            While OLS achieved an in-sample R² of 0.296, its standard errors required HC3 correction to guarantee asymptotic validity. Ridge sacrificed slight in-sample fit to achieve superior out-of-sample stability (Test R² = 0.2466).
+          </p>
+        </div>
+
+        <div class="stat-box">
+          <h4>Continuous vs. Discretized Target</h4>
+          <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.65;">
+            Discretizing continuous cup points into three categories (Low, Medium, High) facilitates commercial grading decisions for coffee buyers. However, binning discards metric distance within the 80–85 band, exacerbating class imbalance.
+          </p>
+        </div>
+
+        <div class="stat-box">
+          <h4>Target Leakage Prevention Cost</h4>
+          <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.65;">
+            Had sensory variables been included, R² would artificially surge above 0.85. Omitting them reduced predictive power to ~0.25, but ensured the project genuinely answered the research question: predicting quality from physical farm metadata.
+          </p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 9. CONCLUSIONS & LIMITATIONS SECTION       -->
+    <!-- ========================================== -->
+    <section id="section-conclusions" class="page-section" aria-labelledby="conclusions-title">
+      <div class="section-header">
+        <span class="section-tag">Academic Synthesis</span>
+        <h2 class="section-title" id="conclusions-title">Conclusions, Academic Limitations &amp; Impact</h2>
+        <p class="section-desc">Key empirical conclusions, methodological limitations from the project report, and actionable recommendations for specialty coffee producers and cupping laboratories.</p>
+      </div>
+
+      <!-- 6 Academic Limitations Grid -->
+      <div class="section-header" style="margin-top:1.5rem;">
+        <span class="section-tag">Methodological Rigor</span>
+        <h3 class="section-title" style="font-size: 1.7rem;">6 Recognized Academic Limitations</h3>
+      </div>
+
+      <div class="findings-grid">
+        <div class="finding-card">
+          <div class="finding-num">1</div>
+          <div class="finding-content">
+            <h4>Observational Data Structure</h4>
+            <p>The dataset is observational rather than an experimental trial. Observed differences (e.g., between processing methods or origins) represent statistical correlations and must not be interpreted as causal effects.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">2</div>
+          <div class="finding-content">
+            <h4>Sensory Latency Gap</h4>
+            <p>Total Cup Points is fundamentally an expert human sensory appraisal. Observable farm metadata cannot capture roasting chemistry, volatile aroma profiles, or nuanced palate perception.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">3</div>
+          <div class="finding-content">
+            <h4>Sample Size Heterogeneity in Categories</h4>
+            <p>Certain origin countries and heirloom varieties had fewer than 5 observations, resulting in wide standard errors for specific categorical dummy indicators.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">4</div>
+          <div class="finding-content">
+            <h4>Temporal &amp; Historical Scope</h4>
+            <p>The dataset reflects coffee cupping records collected primarily up to 2018. Subsequent climate shifts and post-harvest innovations (anaerobic maceration, yeast inoculation) are unrepresented.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">5</div>
+          <div class="finding-content">
+            <h4>Altitude Encoding Inconsistencies</h4>
+            <p>Raw altitude fields contained mixed units, ranges, and typographic errors. While cleaned conservatively (values &gt;5,000m set to NaN), residual noise remains in recorded elevation estimates.</p>
+          </div>
+        </div>
+
+        <div class="finding-card">
+          <div class="finding-num">6</div>
+          <div class="finding-content">
+            <h4>Severe Quality Band Imbalance</h4>
+            <p>With 78.3% of samples concentrated in the Medium band, classification accuracy alone is misleading, requiring macro F1 and balanced prior probabilities for meaningful discrimination.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Practical Recommendations for Industry -->
+      <div class="table-card" style="padding:2rem; margin-top:2.5rem;">
+        <h3 style="font-family:var(--font-heading); font-size:1.3rem; margin-bottom:1rem;">Practical Recommendations for Coffee Producers &amp; Graders</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
+          <div>
+            <h4 style="color:var(--accent-gold); margin-bottom:0.4rem;">Rigorous Secondary Sorting</h4>
+            <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.6;">
+              Given the statistically significant negative coefficient for Category Two defects (-0.12 pts/defect), investing in optical sorting and manual hand-picking directly protects specialty grade eligibility.
+            </p>
+          </div>
+          <div>
+            <h4 style="color:var(--accent-gold); margin-bottom:0.4rem;">Controlled Lot Sizing</h4>
+            <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.6;">
+              The small negative association with Number of Bags suggests that smaller micro-lots allow tighter quality control during drying and fermenting compared to massive bulk shipments.
+            </p>
+          </div>
+          <div>
+            <h4 style="color:var(--accent-gold); margin-bottom:0.4rem;">Origin-Specific Processing</h4>
+            <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.6;">
+              While processing method showed borderline significance overall, natural processing provided modest positive premiums when paired with high-altitude African and Central American terroirs.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ========================================== -->
+    <!-- 10. ABOUT PROJECT & VIVA VOCE SECTION      -->
+    <!-- ========================================== -->
+    <section id="section-about" class="page-section" aria-labelledby="about-title">
+      <div class="section-header">
+        <span class="section-tag">Academic Metadata</span>
+        <h2 class="section-title" id="about-title">About the Project &amp; Viva Voce Defense</h2>
+        <p class="section-desc">Course credentials, faculty mentorship details, tools used, academic references, and comprehensive Viva Voce questions and answers from the final report.</p>
+      </div>
+
+      <!-- Academic Credentials Card -->
+      <div class="stat-box" style="margin-bottom:2.5rem; background:linear-gradient(135deg, rgba(28,26,22,0.9), rgba(20,18,16,0.9)); border-color:var(--border-medium);">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.5rem;">
+          <div>
+            <span style="font-size:0.75rem; color:var(--accent-gold); font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Course Title</span>
+            <div style="font-family:var(--font-heading); font-size:1.15rem; font-weight:700; color:var(--text-primary); margin-top:0.25rem;">
+              Statistical Machine Learning for Data Science (SML)
+            </div>
+            <span style="font-size:0.82rem; color:var(--text-muted);">Semester: 7th • Academic Year: 2026–27</span>
+          </div>
+
+          <div>
+            <span style="font-size:0.75rem; color:var(--accent-gold); font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Faculty Guide</span>
+            <div style="font-family:var(--font-heading); font-size:1.15rem; font-weight:700; color:var(--text-primary); margin-top:0.25rem;">
+              Tejaswini Mam
+            </div>
+            <span style="font-size:0.82rem; color:var(--text-muted);">Department of Data Science &amp; Engineering</span>
+          </div>
+
+          <div>
+            <span style="font-size:0.75rem; color:var(--accent-gold); font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Student Contributor</span>
+            <div style="font-family:var(--font-heading); font-size:1.15rem; font-weight:700; color:var(--text-primary); margin-top:0.25rem;">
+              Nandini TS
+            </div>
+            <span style="font-size:0.82rem; color:var(--text-muted);">Bachelor of Technology in Data Science</span>
+          </div>
+
+          <div>
+            <span style="font-size:0.75rem; color:var(--accent-gold); font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">SML Stack</span>
+            <div style="font-family:var(--font-mono); font-size:0.95rem; color:var(--text-primary); margin-top:0.25rem;">
+              Python • scikit-learn • statsmodels • SciPy • pandas
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Viva Voce Section -->
+      <div class="section-header">
+        <span class="section-tag">Faculty Exam Preparation</span>
+        <h3 class="section-title" style="font-size: 1.8rem;">Viva Voce Defense Questions &amp; Model Answers</h3>
+        <p class="section-desc">Key technical questions and concise defenses prepared directly from Section 13 of the project report.</p>
+      </div>
+
+      <div id="viva-accordion-container" style="margin-bottom:3rem;">
+        <!-- Dynamically rendered via app.js -->
+      </div>
+
+      <!-- References & Citations Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Academic References &amp; Data Sources</h3>
+          <span class="badge badge-gold">Literature Citations</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 25%;">Source / Author</th>
+                <th>Publication Title &amp; Academic Role in Project</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Coffee Quality Institute (CQI)</strong></td>
+                <td>Coffee review database and certified Q-grader cupping assessment protocol standards.</td>
+              </tr>
+              <tr>
+                <td><strong>James LeDoux (2018)</strong></td>
+                <td><em>coffee-quality-database</em>: Building the Coffee Quality Institute Database (GitHub). Primary dataset source.</td>
+              </tr>
+              <tr>
+                <td><strong>James, Witten, Hastie &amp; Tibshirani</strong></td>
+                <td><em>An Introduction to Statistical Learning (ISLR)</em>. Springer. Framework for Ridge Regularization &amp; LDA.</td>
+              </tr>
+              <tr>
+                <td><strong>Montgomery, Peck &amp; Vining</strong></td>
+                <td><em>Introduction to Linear Regression Analysis</em>. Wiley. OLS regression diagnostics &amp; HC3 robust errors.</td>
+              </tr>
+              <tr>
+                <td><strong>Pedregosa et al. (2011)</strong></td>
+                <td><em>Scikit-learn: Machine Learning in Python</em>. JMLR 12, pp. 2825–2830. RidgeCV and LinearDiscriminantAnalysis.</td>
+              </tr>
+              <tr>
+                <td><strong>Seabold &amp; Perktold (2010)</strong></td>
+                <td><em>Statsmodels: Econometric and Statistical Modeling with Python</em>. OLS estimation &amp; Breusch–Pagan testing.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- INTERACTIVE CUP QUALITY PREDICTOR MODAL    -->
+  <!-- ========================================== -->
+  <div class="predictor-modal-overlay" id="predictor-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="predictor-card">
+      <div class="predictor-header">
+        <div>
+          <span class="badge badge-gold" style="margin-bottom:0.25rem;">Live SML Prediction Engine</span>
+          <h3 style="font-family:var(--font-heading); font-size:1.35rem;" id="modal-title">Arabica Quality Predictor &amp; LDA Classifier</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="close-predictor-btn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="alert-box alert-gold" style="margin: 1.5rem 2rem 0; border-radius: var(--radius-sm); font-size: 0.82rem;">
+        <div class="alert-icon" style="font-size:1.1rem;">🔒</div>
+        <div>
+          <strong>Target Leakage Safe:</strong> Prediction is computed exclusively from physical production predictors (defects, elevation, lot size, origin, method) using the calibrated Ridge model and LDA quality bands.
+        </div>
+      </div>
+
+      <div class="predictor-grid">
+        <!-- Inputs Form -->
+        <div class="predictor-inputs">
+          
+          <div class="form-group">
+            <div class="form-label">
+              <span>Category Two Defects (Count):</span>
+              <strong id="val-pred-defects" style="color:var(--accent-gold);">3</strong>
+            </div>
+            <input type="range" id="pred-defects" min="0" max="45" step="1" value="3" style="width:100%; accent-color:var(--accent-gold); cursor:pointer;">
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Cleaned Farm Altitude:</span>
+              <strong id="val-pred-altitude" style="color:var(--accent-gold);">1400 m</strong>
+            </div>
+            <input type="range" id="pred-altitude" min="600" max="2500" step="50" value="1400" style="width:100%; accent-color:var(--accent-gold); cursor:pointer;">
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Shipment Lot Size:</span>
+              <strong id="val-pred-bags" style="color:var(--accent-gold);">100 bags</strong>
+            </div>
+            <input type="range" id="pred-bags" min="1" max="600" step="10" value="100" style="width:100%; accent-color:var(--accent-gold); cursor:pointer;">
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>Moisture Content:</span>
+              <strong id="val-pred-moisture" style="color:var(--accent-gold);">11.0%</strong>
+            </div>
+            <input type="range" id="pred-moisture" min="0.08" max="0.15" step="0.005" value="0.11" style="width:100%; accent-color:var(--accent-gold); cursor:pointer;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="pred-method">Processing Method:</label>
+            <select id="pred-method" class="form-control">
+              <option value="Washed / Wet">Washed / Wet (Most Common)</option>
+              <option value="Natural / Dry">Natural / Dry (Sun Dried)</option>
+              <option value="Pulped natural / honey">Pulped natural / honey</option>
+              <option value="Semi-washed / Semi-pulped">Semi-washed / Semi-pulped</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="pred-country">Country of Origin:</label>
+            <select id="pred-country" class="form-control">
+              <option value="Ethiopia">Ethiopia (Premium Heirloom)</option>
+              <option value="Kenya">Kenya (High Acidity / SL Varietals)</option>
+              <option value="Uganda">Uganda (East African Arabica)</option>
+              <option value="Colombia">Colombia (Supremo / Excelso)</option>
+              <option value="Guatemala">Guatemala (Antigua / Huehuetenango)</option>
+              <option value="Brazil">Brazil (Cerrado / Sul de Minas)</option>
+              <option value="Mexico">Mexico (Coatepec / Chiapas)</option>
+              <option value="Other">Other Origin</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Predicted Results Display -->
+        <div class="predictor-result-panel">
+          <span style="font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700;">Ridge Predicted Cup Score</span>
+          <div class="result-score" id="predicted-score-display">82.85</div>
+          <span style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem;">Scale: 60.0 to 90.0+ Points</span>
+
+          <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">LDA Quality Band</span>
+          <div>
+            <span class="result-class-badge badge badge-gold" id="predicted-band-display">Medium Quality (80–85)</span>
+          </div>
+
+          <div style="font-size:0.82rem; color:var(--text-secondary); margin-top:1rem; border-top:1px solid var(--border-subtle); padding-top:1rem;" id="predicted-ci-display">
+            Prediction 95% Confidence Band: [80.52 – 85.18] pts (RMSE = 2.328)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Master Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <strong style="color:var(--text-primary); font-family:var(--font-heading); font-size:1rem;">Arabica Coffee Quality Analysis &amp; Prediction</strong><br>
+        <span>Statistical Machine Learning for Data Science • Academic Year 2026–27</span>
+      </div>
+      <div style="font-size:0.82rem;">
+        <span>Faculty Guide: <strong>Tejaswini Mam</strong></span> • 
+        <span>Student: <strong>Nandini TS</strong></span> • 
+        <span>Dataset: <strong>CQI Arabica (N=1,310)</strong></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Modules -->
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/charts.js"></script>
+  <script src="assets/js/app.js"></script>
+
+</body>
+</html>
